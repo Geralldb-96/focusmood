@@ -23,3 +23,6 @@ www/
 out-tsc/
 playwright-report/
 test-results/
+
+# Kotlin compiler session files
+android/.kotlin/
