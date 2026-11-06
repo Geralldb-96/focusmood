@@ -1,3 +1,25 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+*.iml
+.idea/
+.DS_Store
+*.log
+# Machine-specific Android configuration and generated outputs
+android/local.properties
+android/.gradle/
+android/**/build/
+# Archived build caches from the previous frontend
 node_modules/
 dist/
-*.log
+www/
+.angular/
+out-tsc/
+playwright-report/
+test-results/
