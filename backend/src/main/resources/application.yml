@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: focusmood-backend
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/focusmood}
+    username: ${DB_USER:focusmood}
+    password: ${DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+
+focusmood:
+  zone: ${APP_ZONE:America/Bogota}
+  security:
+    # Secreto HS256 (minimo 32 caracteres). Obligatorio, solo por variable de entorno (RNF-08).
+    jwt-secret: ${JWT_SECRET}
+    # Access token corto; la sesion se mantiene con el refresh token rotativo (revocable en servidor).
+    jwt-ttl: ${JWT_TTL:PT15M}
+    refresh-ttl: ${REFRESH_TTL:P7D}
+    reset-token-ttl: ${RESET_TOKEN_TTL:PT30M}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost,https://localhost,capacitor://localhost}
+  ai:
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_MODEL:gemini-2.5-flash}
+      base-url: https://generativelanguage.googleapis.com/v1beta
+      timeout: PT10S
