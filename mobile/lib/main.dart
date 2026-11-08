@@ -6,6 +6,7 @@ import 'mood_store.dart';
 import 'theme.dart';
 part 'app/screens/about_screen.dart';
 part 'app/screens/help_screen.dart';
+part 'app/screens/system_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -2283,56 +2284,9 @@ class _MoodPageState extends State<MoodPage> with WidgetsBindingObserver {
         return buildHelpScreen();
       case 'about':
         return buildAboutScreen();
+
       case 'system':
-        return [
-          heading('Sistema Mood', sub: 'Base visual compacta · v1.0'),
-          title('PALETA SERENA'),
-          Row(
-            children:
-                [
-                      moodGreen,
-                      const Color(0xfff6ac69),
-                      const Color(0xff9080b0),
-                      const Color(0xff4c8198),
-                      const Color(0xff2b805f),
-                      const Color(0xffba5054),
-                    ]
-                    .map(
-                      (c) => Expanded(
-                        child: Container(
-                          height: 40,
-                          margin: const EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                            color: c,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-          ),
-          box(
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                text('Bienestar que acompaña', size: 24, bold: true),
-                gap(8),
-                small('Jerarquía limpia · lectura móvil accesible.'),
-              ],
-            ),
-            color: 'soft',
-          ),
-          button(
-            'Acción principal',
-            () => go('home'),
-            icon: Icons.arrow_forward,
-          ),
-          button(
-            dark ? 'Modo claro' : 'Modo oscuro',
-            s.toggleTheme,
-            secondary: true,
-          ),
-        ];
+        return buildSystemScreen();
       default:
         return [
           heading('Mood'),
