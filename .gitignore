@@ -43,3 +43,7 @@ credentials*.json
 
 # External service configuration
 mobile/android/app/google-services.json
+# Office temporary files
+~$*.xlsx
+~$*.docx
+~$*.pptx
