@@ -12,9 +12,9 @@ coverage/
 .DS_Store
 *.log
 # Machine-specific Android configuration and generated outputs
-android/local.properties
-android/.gradle/
-android/**/build/
+mobile/android/local.properties
+mobile/android/.gradle/
+mobile/android/**/build/
 # Archived build caches from the previous frontend
 node_modules/
 dist/
@@ -25,7 +25,7 @@ playwright-report/
 test-results/
 
 # Kotlin compiler session files
-android/.kotlin/
+mobile/android/.kotlin/
 # Secrets and local environment files
 .env
 .env.*
@@ -42,4 +42,4 @@ credentials*.json
 *.key
 
 # External service configuration
-android/app/google-services.json
+mobile/android/app/google-services.json

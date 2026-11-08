@@ -5,6 +5,7 @@
       "name": "Mood · Android emulator",
       "type": "dart",
       "request": "launch",
+      "cwd": "${workspaceFolder}/mobile",
       "program": "lib/main.dart",
       "deviceId": "emulator-5554"
     },
@@ -12,6 +13,7 @@
       "name": "Mood · Chrome",
       "type": "dart",
       "request": "launch",
+      "cwd": "${workspaceFolder}/mobile",
       "program": "lib/main.dart",
       "deviceId": "chrome"
     }
