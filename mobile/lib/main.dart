@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'mood_store.dart';
 import 'theme.dart';
+part 'app/screens/about_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -2302,30 +2303,7 @@ class _MoodPageState extends State<MoodPage> with WidgetsBindingObserver {
           ),
         ];
       case 'about':
-        return [
-          heading('Acerca de Mood'),
-          box(
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                brand(),
-                gap(16),
-                text('Bienestar que acompaña', size: 22, bold: true),
-                gap(10),
-                small(
-                  'Una herramienta para cuidar tus hábitos y encontrar tu ritmo de estudio.',
-                ),
-                gap(12),
-                small('Versión 1.2.0 · Flutter y Dart. Temas claro y oscuro.'),
-                gap(12),
-                small(
-                  'Las recomendaciones son ejemplos locales y no constituyen atención médica o psicológica.',
-                ),
-              ],
-            ),
-            color: 'soft',
-          ),
-        ];
+        return buildAboutScreen();
       case 'system':
         return [
           heading('Sistema Mood', sub: 'Base visual compacta · v1.0'),
