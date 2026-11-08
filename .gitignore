@@ -26,3 +26,20 @@ test-results/
 
 # Kotlin compiler session files
 android/.kotlin/
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+secrets/
+credentials*.json
+
+# Certificates and signing keys
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+
+# External service configuration
+android/app/google-services.json
