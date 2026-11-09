@@ -7,6 +7,12 @@ import 'theme.dart';
 part 'app/screens/about_screen.dart';
 part 'app/screens/help_screen.dart';
 part 'app/screens/system_screen.dart';
+part 'app/screens/privacy_screen.dart';
+part 'app/screens/welcome_screen.dart';
+part 'app/screens/signup_screen.dart';
+part 'app/screens/login_screen.dart';
+part 'app/screens/recover_screen.dart';
+part 'app/screens/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -589,411 +595,20 @@ class _MoodPageState extends State<MoodPage> with WidgetsBindingObserver {
   List<Widget> content() {
     switch (screen) {
       case 'welcome':
-        return [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              brand(),
-              IconButton(
-                onPressed: s.toggleTheme,
-                icon: Icon(
-                  dark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-                ),
-                tooltip: dark ? 'Modo claro' : 'Modo oscuro',
-              ),
-            ],
-          ),
-          gap(22),
-          SizedBox(
-            height: 220,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Positioned(
-                  right: 30,
-                  bottom: 20,
-                  child: Container(
-                    width: 135,
-                    height: 145,
-                    decoration: BoxDecoration(
-                      color: tone('peach'),
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  child: Container(
-                    width: 170,
-                    height: 170,
-                    decoration: BoxDecoration(
-                      color: tone('lavender'),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-                Transform.rotate(
-                  angle: -.3,
-                  child: Container(
-                    width: 245,
-                    height: 175,
-                    decoration: BoxDecoration(
-                      color: tone('mint'),
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: 25,
-                  bottom: 20,
-                  child: CircleAvatar(
-                    backgroundColor: surface,
-                    child: const Icon(
-                      Icons.favorite_border,
-                      color: Color(0xffba5054),
-                      size: 21,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  right: 28,
-                  top: 18,
-                  child: CircleAvatar(
-                    backgroundColor: surface,
-                    child: const Icon(
-                      Icons.auto_awesome_outlined,
-                      color: Color(0xffc88948),
-                      size: 21,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          gap(14),
-          Text(
-            'Tu bienestar\nacadémico, a tu ritmo',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          gap(10),
-          text(
-            'Registra cómo te sientes, mejora tus hábitos y recibe recomendaciones útiles para estudiar con equilibrio.',
-            align: TextAlign.center,
-            color: muted,
-          ),
-          gap(12),
-          note(
-            'Mood no sustituye orientación médica o psicológica profesional.',
-            icon: Icons.shield_outlined,
-          ),
-          button('Comenzar', () => go('signup'), icon: Icons.arrow_forward),
-          link('¿Ya tienes cuenta?  Inicia sesión', () => go('login')),
-        ];
+        return buildWelcomeScreen();
+
       case 'signup':
+        return buildSignupScreen(screen);
+
       case 'login':
-        final signup = screen == 'signup';
-        return [
-          brand(),
-          gap(12),
-          heading(
-            signup ? 'Crea tu espacio' : 'Qué gusto verte',
-            sub: signup
-                ? 'Unos datos para personalizar tu experiencia.'
-                : 'Retoma tus hábitos y sesiones de estudio.',
-            backButton: false,
-          ),
-          Form(
-            key: form,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (signup)
-                  field(
-                    'Nombre',
-                    name,
-                    icon: Icons.person_outline,
-                    required: true,
-                  ),
-                field(
-                  signup ? 'Correo universitario' : 'Correo',
-                  email,
-                  icon: Icons.mail_outline,
-                  required: true,
-                  isEmail: true,
-                ),
-                field(
-                  'Contraseña',
-                  password,
-                  icon: Icons.lock_outline,
-                  required: true,
-                  secret: true,
-                  minLength: 8,
-                ),
-                if (signup) ...[
-                  gap(5),
-                  small('8 caracteres, una mayúscula y un número'),
-                  CheckboxListTile(
-                    contentPadding: EdgeInsets.zero,
-                    value: accepted,
-                    onChanged: (v) => setState(() => accepted = v ?? false),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    title: small(
-                      'Acepto los términos, privacidad y el uso responsable de recomendaciones.',
-                    ),
-                  ),
-                ] else
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () => go('recover'),
-                      child: text('¿Olvidaste tu contraseña?', size: 12),
-                    ),
-                  ),
-                button(signup ? 'Crear cuenta' : 'Iniciar sesión', () {
-                  if (!form.currentState!.validate()) return;
-                  if (signup &&
-                      (!accepted ||
-                          !RegExp(r'[A-Z]').hasMatch(password.text) ||
-                          !RegExp(r'[0-9]').hasMatch(password.text))) {
-                    notify(
-                      'Acepta los términos y usa una contraseña con mayúscula y número.',
-                    );
-                    return;
-                  }
-                  if (signup) {
-                    s.saveProfile({
-                      ...s.profile,
-                      'name': name.text.trim(),
-                      'email': email.text.trim(),
-                    });
-                  }
-                  password.clear();
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/home',
-                    (_) => false,
-                  );
-                  notify('Bienvenido a tu espacio de demostración');
-                }, icon: Icons.person_add_outlined),
-              ],
-            ),
-          ),
-          gap(10),
-          small(
-            signup ? 'o continúa con tu cuenta institucional' : 'o',
-            align: TextAlign.center,
-          ),
-          button(
-            'Continuar con Google',
-            () => notify(
-              'Google requiere conectar un servicio de autenticación.',
-            ),
-            secondary: true,
-            icon: Icons.public,
-          ),
-          link(
-            signup
-                ? '¿Ya tienes cuenta?  Inicia sesión'
-                : '¿Aún no tienes cuenta?  Regístrate',
-            () => go(signup ? 'login' : 'signup', replace: true),
-          ),
-          small(
-            'Demo local · No uses tu contraseña real.',
-            align: TextAlign.center,
-          ),
-        ];
+        return buildLoginScreen(screen);
+
       case 'recover':
-        return [
-          heading('Recuperar acceso', sub: 'Te enviaremos un enlace seguro.'),
-          box(
-            const SizedBox(
-              height: 140,
-              child: Center(
-                child: CircleAvatar(
-                  radius: 38,
-                  child: Icon(Icons.key_outlined, size: 34),
-                ),
-              ),
-            ),
-            color: 'blue',
-          ),
-          Form(
-            key: form,
-            child: Column(
-              children: [
-                field(
-                  'Correo de tu cuenta',
-                  email,
-                  icon: Icons.mail_outline,
-                  required: true,
-                  isEmail: true,
-                ),
-                button('Enviar enlace', () {
-                  if (form.currentState!.validate()) {
-                    setState(() => sent = true);
-                  }
-                }, icon: Icons.send_outlined),
-              ],
-            ),
-          ),
-          if (sent)
-            note(
-              'Solicitud de demostración. El envío de correos estará disponible al conectar el servidor.',
-              color: 'mint',
-              icon: Icons.check_circle_outline,
-            ),
-        ];
+        return buildRecoverScreen();
+
       case 'home':
-        return [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    small('Jueves, 1 de octubre'),
-                    Text(
-                      'Hola, ${s.firstName} ☼',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ],
-                ),
-              ),
-              InkWell(onTap: () => go('profile'), child: avatar(radius: 22)),
-            ],
-          ),
-          gap(10),
-          box(
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          text('¿Cómo estás hoy?', size: 16, bold: true),
-                          small('Tu registro toma menos de 1 minuto'),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.spa_outlined, size: 28),
-                  ],
-                ),
-                button('Registrar mi día', () => go('daily'), icon: Icons.add),
-              ],
-            ),
-            color: 'lavender',
-          ),
-          title('Accesos rápidos'),
-          LayoutBuilder(
-            builder: (context, c) {
-              const data = [
-                (
-                  'Recomendación IA',
-                  'Una técnica para ahora',
-                  'daily',
-                  'mint',
-                  Icons.auto_awesome_outlined,
-                ),
-                (
-                  'Pomodoro',
-                  '25 min de enfoque',
-                  'focus',
-                  'blue',
-                  Icons.timer_outlined,
-                ),
-                (
-                  'Bienestar',
-                  'Pausas y ejercicios',
-                  'wellness',
-                  'peach',
-                  Icons.favorite_border,
-                ),
-                (
-                  'Hábitos',
-                  'Tu ritmo, cada día',
-                  'habits',
-                  'lavender',
-                  Icons.check_circle_outline,
-                ),
-              ];
-              return Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: data
-                    .map(
-                      (d) => SizedBox(
-                        width: (c.maxWidth - 10) / 2,
-                        child: Material(
-                          color: tone(d.$4),
-                          borderRadius: BorderRadius.circular(19),
-                          child: InkWell(
-                            onTap: () => go(d.$3),
-                            borderRadius: BorderRadius.circular(19),
-                            child: Padding(
-                              padding: const EdgeInsets.all(13),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 17,
-                                    backgroundColor: surface,
-                                    child: Icon(d.$5, size: 18),
-                                  ),
-                                  gap(10),
-                                  text(d.$1, bold: true, size: 13),
-                                  gap(5),
-                                  small(
-                                    d.$3 == 'habits'
-                                        ? '${s.completed} de ${s.habits.length} completados'
-                                        : d.$2,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-              );
-            },
-          ),
-          gap(10),
-          box(
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          text('Racha de bienestar', bold: true),
-                          small('5 días cuidando de ti'),
-                        ],
-                      ),
-                    ),
-                    Chip(
-                      avatar: const Icon(
-                        Icons.local_fire_department_outlined,
-                        size: 15,
-                      ),
-                      label: small('5 días'),
-                    ),
-                  ],
-                ),
-                gap(8),
-                progress(.7, color: const Color(0xfff6ac69)),
-              ],
-            ),
-          ),
-          link('Ver notificaciones', () => go('notifications')),
-        ];
+        return buildHomeScreen();
+
       case 'daily':
         return [
           heading(
@@ -2232,54 +1847,7 @@ class _MoodPageState extends State<MoodPage> with WidgetsBindingObserver {
           ],
         ];
       case 'privacy':
-        return [
-          heading('Privacidad y datos'),
-          box(
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.shield_outlined),
-                gap(9),
-                text('Tú controlas tu información', size: 19, bold: true),
-                gap(9),
-                small(
-                  'Esta demostración guarda tus hábitos, registros y perfil únicamente en el almacenamiento local del dispositivo. No se envían a un servidor.',
-                ),
-              ],
-            ),
-            color: 'soft',
-          ),
-          button(
-            'Exportar mis datos',
-            () async {
-              await Clipboard.setData(ClipboardData(text: s.export()));
-              if (mounted) {
-                notify('Datos copiados al portapapeles en formato JSON.');
-              }
-            },
-            secondary: true,
-            icon: Icons.copy_outlined,
-          ),
-          button(
-            'Eliminar mis datos locales',
-            () => confirm(
-              '¿Eliminar tus datos?',
-              'Se borrará la información de Mood guardada en este dispositivo.',
-              () async {
-                await s.clear();
-                if (mounted) {
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/welcome',
-                    (_) => false,
-                  );
-                }
-              },
-              label: 'Eliminar datos',
-            ),
-            danger: true,
-          ),
-        ];
+        return buildPrivacyScreen();
       case 'help':
         return buildHelpScreen();
       case 'about':
@@ -2292,6 +1860,12 @@ class _MoodPageState extends State<MoodPage> with WidgetsBindingObserver {
           heading('Mood'),
           button('Ir al inicio', () => go('home', replace: true)),
         ];
+    }
+  }
+
+  void refresh(VoidCallback callback) {
+    if (mounted) {
+      setState(callback);
     }
   }
 
