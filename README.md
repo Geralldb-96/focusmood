@@ -26,36 +26,125 @@ focusmood/
 
 ## Puesta en marcha
 
-1. **Base de datos y backend**
+### Requisitos
 
-   ```sh
-   JWT_SECRET=dev-only-secret-change-me-0123456789abcdef docker compose up -d db
-   cd backend
-   SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run     # API en http://localhost:8080
-   ```
+| Herramienta | Versión | Para qué |
+| --- | --- | --- |
+| JDK | 21 | Backend (Maven viene incluido: `mvnw`) |
+| Docker Desktop | reciente | PostgreSQL (o el stack completo) |
+| Flutter | 3.x | App móvil (`mobile/`) |
+| Android Studio / SDK | opcional | Emulador o APK |
+| Node.js | 22+ | Solo el prototipo web de la raíz |
 
-   Las migraciones de Flyway se aplican solas al iniciar. Referencia de rutas en [backend/API.md](backend/API.md).
+### 1. Configuración (una sola vez)
 
-2. **App Flutter** (requiere Flutter 3.x; para Android, el SDK)
+Crea un archivo `.env` en la raíz (está en `.gitignore`; Docker Compose lo lee solo):
 
-   ```sh
-   cd mobile
-   flutter pub get
-   flutter run -d chrome --web-port 5173                          # en el navegador
-   flutter run                                                     # emulador Android (usa 10.0.2.2:8080)
-   flutter run --dart-define=API_URL=http://<IP-de-tu-PC>:8080     # teléfono real en la misma red
-   flutter test                                                    # pruebas
-   ```
+```env
+JWT_SECRET=un-secreto-de-al-menos-32-caracteres-cambialo
+# Opcionales
+# DB_PASSWORD=focusmood
+# GEMINI_API_KEY=tu-clave        # sin clave, las recomendaciones usan el respaldo por reglas
+```
 
-3. **APK**
+> `docker-compose.yml` exige `JWT_SECRET` aunque solo levantes la base de datos; si falta, `docker compose` falla con "Define JWT_SECRET".
 
-   ```sh
-   cd mobile
-   flutter build apk --release --dart-define=API_URL=http://<IP-de-tu-PC>:8080
-   # build/app/outputs/flutter-apk/app-release.apk
-   ```
+### 2. Levantar el backend
 
-   El APK queda firmado con la clave de depuración y permite HTTP sin cifrar (solo desarrollo). Para producción: HTTPS, quitar `usesCleartextTraffic` y configurar una firma propia. El APK no se versiona.
+Elige **una** opción.
+
+**Opción A · Base de datos en Docker + backend con Maven** (recomendada para desarrollar)
+
+```sh
+docker compose up -d db          # PostgreSQL 17 en localhost:5432
+cd backend
+```
+
+Linux/macOS/Git Bash:
+
+```sh
+SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
+```
+
+Windows PowerShell:
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE = "dev"
+.\mvnw.cmd spring-boot:run
+```
+
+El perfil `dev` trae un `JWT_SECRET` de desarrollo y la contraseña `focusmood` de la base, que coincide con la de `docker-compose.yml`. Sin ese perfil tendrás que definir `JWT_SECRET` y `DB_PASSWORD` tú mismo.
+
+**Opción B · Todo en Docker** (base de datos + backend)
+
+```sh
+docker compose up -d --build
+```
+
+Compila el backend dentro de la imagen y lo publica en `http://localhost:8080`. Lee `JWT_SECRET` y `GEMINI_API_KEY` del `.env`.
+
+**Comprobar que arrancó.** Las migraciones de Flyway se aplican solas. El proyecto no incluye Actuator, así que no hay `/actuator/health`; prueba con un endpoint protegido, que debe responder `401`:
+
+```sh
+curl -i http://localhost:8080/api/v1/study-techniques
+```
+
+Referencia de rutas en [backend/API.md](backend/API.md).
+
+### 3. Levantar la app Flutter
+
+Con el backend ya corriendo:
+
+```sh
+cd mobile
+flutter pub get
+flutter run -d chrome --web-port 5173                          # navegador (CORS ya permite :5173)
+flutter run                                                     # emulador Android: usa http://10.0.2.2:8080
+flutter run --dart-define=API_URL=http://<IP-de-tu-PC>:8080     # teléfono real en la misma red
+flutter test                                                    # pruebas
+```
+
+- `API_URL` apunta la app a otro backend. En el emulador Android, `10.0.2.2` es el `localhost` de tu PC.
+- Para un teléfono real, el PC y el teléfono deben estar en la misma red y el firewall debe permitir el puerto 8080. Averigua tu IP con `ipconfig` (Windows) o `ip addr` / `ifconfig`.
+
+### 4. Generar el APK
+
+```sh
+cd mobile
+flutter build apk --release --dart-define=API_URL=http://<IP-de-tu-PC>:8080
+# -> build/app/outputs/flutter-apk/app-release.apk
+```
+
+El APK queda firmado con la clave de depuración y permite HTTP sin cifrar (solo desarrollo). Para producción: HTTPS, quitar `usesCleartextTraffic` y configurar una firma propia. El APK no se versiona.
+
+### 5. Prototipo web (opcional)
+
+```sh
+npm ci
+npm run dev        # http://localhost:5173, reenvía /api -> :8080
+```
+
+Si el backend corre en otra dirección: `VITE_PROXY_TARGET=http://host:puerto npm run dev`. No lo uses a la vez que `flutter run -d chrome --web-port 5173`: ambos usan el puerto 5173.
+
+### 6. Detener y reiniciar
+
+```sh
+docker compose down              # detiene los contenedores (conserva los datos)
+docker compose down -v           # además BORRA la base de datos
+```
+
+### Problemas frecuentes
+
+| Síntoma | Causa y solución |
+| --- | --- |
+| `Define JWT_SECRET (minimo 32 caracteres)` al usar Docker | Falta `JWT_SECRET` en `.env` o en el entorno |
+| `Could not resolve placeholder 'JWT_SECRET'` en Maven | Arrancaste sin el perfil `dev`: actívalo o define `JWT_SECRET` |
+| `password authentication failed` / `Connection refused` | La base no está arriba (`docker compose ps`) o `DB_PASSWORD` no coincide con la del contenedor. Si cambiaste la contraseña, `docker compose down -v` y vuelve a levantar |
+| `Port 5432` o `8080 already in use` | Otro PostgreSQL o proceso usa el puerto; ciérralo o cambia `PORT` / el mapeo en `docker-compose.yml` |
+| La app en el emulador no conecta | Usa `10.0.2.2`, no `localhost`; verifica que el backend responda en `:8080` |
+| La app en el teléfono no conecta | Revisa `API_URL`, la IP, que estén en la misma red y el firewall |
+| Error de CORS en el navegador | Sirve la app en `http://localhost:5173` o añade tu origen a `CORS_ALLOWED_ORIGINS` |
+| Las recomendaciones dicen "respaldo" / `reglas-locales` | No hay `GEMINI_API_KEY` (o Gemini falló): es el comportamiento esperado |
 
 ## App móvil
 
@@ -91,7 +180,7 @@ Requisitos: JDK 21 y PostgreSQL (o Docker). Maven viene incluido (`mvnw`). Detal
 
 ## Prototipo web (referencia)
 
-El frontend React de la raíz se conserva como referencia del diseño y también está conectado a la API (`npm ci && npm run dev`, requiere Node 22+). Vite reenvía `/api` al backend (`VITE_PROXY_TARGET` lo cambia). La app oficial es la de `mobile/`.
+El frontend React de la raíz se conserva como referencia del diseño y también está conectado a la API (ver [paso 5](#5-prototipo-web-opcional)). La app oficial es la de `mobile/`.
 
 ## Contribuir
 
