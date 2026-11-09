@@ -28,6 +28,9 @@ part 'app/screens/profile_screen.dart';
 part 'app/screens/edit_profile_screen.dart';
 part 'app/screens/reminders_screen.dart';
 part 'app/screens/notifications_screen.dart';
+part 'app/widgets/typography_widgets.dart';
+part 'app/widgets/button_widgets.dart';
+part 'app/widgets/card_widgets.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -201,68 +204,6 @@ class _MoodPageState extends State<MoodPage> with WidgetsBindingObserver {
     );
   }
 
-  Text text(
-    String value, {
-    double? size,
-    bool bold = false,
-    Color? color,
-    TextAlign? align,
-  }) => Text(
-    value,
-    textAlign: align,
-    style: TextStyle(
-      fontSize: size,
-      fontWeight: bold ? FontWeight.w700 : null,
-      color: color,
-    ),
-  );
-  Widget small(String value, {TextAlign? align}) => Text(
-    value,
-    textAlign: align,
-    style: Theme.of(context).textTheme.bodySmall,
-  );
-  Widget gap([double size = 16]) => SizedBox(height: size);
-  Widget title(String value) => Padding(
-    padding: const EdgeInsets.only(top: 22, bottom: 12),
-    child: Text(value, style: Theme.of(context).textTheme.titleMedium),
-  );
-  Widget heading(
-    String value, {
-    String? sub,
-    bool backButton = true,
-    IconData? action,
-    VoidCallback? onAction,
-    String? actionLabel,
-  }) => Padding(
-    padding: const EdgeInsets.only(bottom: 20),
-    child: Row(
-      children: [
-        if (backButton) ...[
-          IconButton.filledTonal(
-            onPressed: () => back(),
-            icon: const Icon(Icons.chevron_left),
-            tooltip: 'Volver',
-          ),
-          const SizedBox(width: 8),
-        ],
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(value, style: Theme.of(context).textTheme.titleLarge),
-              if (sub != null) small(sub),
-            ],
-          ),
-        ),
-        if (action != null)
-          IconButton.filledTonal(
-            onPressed: onAction,
-            icon: Icon(action, size: 20),
-            tooltip: actionLabel ?? 'Opciones',
-          ),
-      ],
-    ),
-  );
   Widget brand() => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
@@ -278,71 +219,7 @@ class _MoodPageState extends State<MoodPage> with WidgetsBindingObserver {
       text('Mood', size: 22, bold: true),
     ],
   );
-  Widget button(
-    String label,
-    VoidCallback? onTap, {
-    IconData? icon,
-    bool secondary = false,
-    bool danger = false,
-  }) {
-    final child = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (icon != null) ...[Icon(icon, size: 17), const SizedBox(width: 8)],
-        Flexible(child: Text(label, textAlign: TextAlign.center)),
-      ],
-    );
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
-      child: secondary
-          ? OutlinedButton(onPressed: onTap, child: child)
-          : FilledButton(
-              onPressed: onTap,
-              style: danger
-                  ? FilledButton.styleFrom(
-                      backgroundColor: dark
-                          ? const Color(0xff4b282a)
-                          : const Color(0xfffbe8e7),
-                      foregroundColor: dark
-                          ? const Color(0xffffb4b4)
-                          : const Color(0xffbf4549),
-                    )
-                  : null,
-              child: child,
-            ),
-    );
-  }
 
-  Widget link(String label, VoidCallback action) => Center(
-    child: TextButton(
-      onPressed: action,
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-      ),
-    ),
-  );
-  Widget box(Widget child, {String? color, EdgeInsets? padding}) => Container(
-    margin: const EdgeInsets.symmetric(vertical: 7),
-    padding: padding ?? const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: color == null ? surface : tone(color),
-      borderRadius: BorderRadius.circular(23),
-      border: color == null
-          ? Border.all(color: Theme.of(context).dividerColor)
-          : null,
-      boxShadow: color == null
-          ? [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: .03),
-                blurRadius: 14,
-                offset: const Offset(0, 4),
-              ),
-            ]
-          : null,
-    ),
-    child: child,
-  );
   Widget note(
     String message, {
     String color = 'peach',
