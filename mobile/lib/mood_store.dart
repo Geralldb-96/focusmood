@@ -2,61 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'features/focus/domain/focus_session.dart';
+import 'features/habits/domain/habit.dart';
+
 import 'legacy_storage.dart'
     if (dart.library.js_interop) 'legacy_storage_web.dart';
-
-class Habit {
-  Habit({
-    required this.id,
-    required this.name,
-    this.goal = '15 minutos',
-    this.icon = 'walk',
-    this.done = false,
-    this.days = const [0, 1, 2, 3, 4],
-    this.reminder = true,
-    this.moment = 'Tarde',
-  });
-  final int id;
-  String name, goal, icon, moment;
-  bool done, reminder;
-  List<int> days;
-  factory Habit.fromJson(Map<String, dynamic> j) => Habit(
-    id: j['id'] as int,
-    name: j['name'] as String,
-    goal: j['goal'] as String? ?? '15 minutos',
-    icon: j['icon'] as String? ?? 'walk',
-    done: j['done'] == true,
-    days: (j['days'] as List?)?.cast<int>() ?? [0, 1, 2, 3, 4],
-    reminder: j['reminder'] as bool? ?? true,
-    moment: j['moment'] as String? ?? 'Tarde',
-  );
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'goal': goal,
-    'icon': icon,
-    'done': done,
-    'days': days,
-    'reminder': reminder,
-    'moment': moment,
-  };
-}
-
-class FocusSession {
-  FocusSession(this.minutes, this.date, {this.name = 'Sesión de enfoque'});
-  final int minutes;
-  final String date, name;
-  Map<String, dynamic> toJson() => {
-    'name': name,
-    'minutes': minutes,
-    'date': date,
-  };
-  factory FocusSession.fromJson(Map<String, dynamic> j) => FocusSession(
-    (j['minutes'] as num).toInt(),
-    j['date'] as String,
-    name: j['name'] as String? ?? 'Sesión de enfoque',
-  );
-}
+export 'features/focus/domain/focus_session.dart';
+export 'features/habits/domain/habit.dart';
 
 class MoodStore extends ChangeNotifier {
   MoodStore(this.prefs, {DateTime Function()? now}) : now = now ?? DateTime.now;
