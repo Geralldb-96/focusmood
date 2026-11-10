@@ -1,0 +1,10 @@
+# Solo desarrollo local: SPRING_PROFILES_ACTIVE=dev
+spring:
+  datasource:
+    password: ${DB_PASSWORD:focusmood}
+focusmood:
+  security:
+    jwt-secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef}
+logging:
+  level:
+    com.focusmood: DEBUG

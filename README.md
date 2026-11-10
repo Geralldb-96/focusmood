@@ -29,13 +29,13 @@ Los documentos se actualizan en la misma rama que el cambio que describen. Una t
 
 FocusMood es una aplicación móvil de bienestar académico. Permite registrar el estado diario, gestionar hábitos, usar un temporizador Pomodoro, realizar actividades de bienestar y recibir recomendaciones personalizadas.
 
-El cliente móvil conserva Flutter y Dart. La arquitectura planificada incorpora un backend con Java 21 y Spring Boot, PostgreSQL, Gemini, Docker y Kubernetes.
+El cliente móvil conserva Flutter y Dart. El backend utiliza Java 21 y Spring Boot, PostgreSQL, Gemini y Docker; Kubernetes permanece planificado.
 
 ## Estado actual
 
-La aplicación Flutter funciona como prototipo local. Las funciones de autenticación, inteligencia artificial, correo, base de datos y notificaciones automáticas todavía deben conectarse con servicios reales.
+La aplicación Flutter funciona como prototipo local. El repositorio ya incluye una API Spring Boot con autenticación JWT, PostgreSQL y migraciones Flyway, recomendaciones con Gemini y respaldo local basado en reglas, además de Docker Compose para ejecutar backend y base de datos.
 
-No uses contraseñas ni información personal real mientras el proyecto permanezca en modo demostración.
+La conexión del cliente Flutter actual con la API, el proveedor real de correo, las notificaciones automáticas y los manifiestos de Kubernetes continúan pendientes. No uses contraseñas ni información personal real mientras el cliente permanezca en modo demostración.
 
 ## Tecnologías
 
@@ -67,3 +67,22 @@ focusmood/
 ├── outputs/                 Artefactos de seguimiento
 ├── .env.example             Variables de entorno requeridas
 └── README.md
+```
+
+## Backend y base de datos
+
+1. Copia `.env.example` como `.env` y reemplaza los valores locales.
+2. Ejecuta:
+
+```sh
+docker compose --env-file .env -f infrastructure/docker/compose.yml up --build
+```
+
+La API queda disponible en `http://localhost:8080/api/v1`. Flyway aplica automáticamente las migraciones ubicadas en `backend/src/main/resources/db/migration/`.
+
+Para ejecutar las pruebas del backend:
+
+```sh
+cd backend
+./mvnw clean test
+```
